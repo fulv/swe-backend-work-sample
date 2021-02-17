@@ -13,6 +13,6 @@ to make running the application easier.
 To start the application, run `docker-compose up`.
 
 ### Running tests
-`app_test.rb` contains a basic test, which may help in
+`test_app.py` contains a basic test, which may help in
 understanding how to interact with the API. Tests can
-be run using `docker-compose run web ruby app_test.rb`.
+be run using `docker-compose run web pytest -rA`.

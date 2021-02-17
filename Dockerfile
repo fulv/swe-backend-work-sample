@@ -1,23 +1,21 @@
-FROM ruby:2.7
-
-RUN gem install bundler -v 1.17.3
+FROM python:3.7
 
 RUN mkdir /app
 WORKDIR /app
 
-ADD Gemfile /app
-ADD Gemfile.lock /app
-RUN bundle install
+ADD requirements.txt /app
+RUN pip install -r requirements.txt
 
-ADD app.rb /app
-ADD config.ru /app
-ADD ssh_certificate_generator.rb /app
-ADD generate_ca_key.rb /app
-ADD app_test.rb /app
+ADD app.py /app
+ADD test_app.py /app
+ADD ssh_certificate_generator.py /app
+ADD generate_ca_key.py /app
 
-RUN ruby generate_ca_key.rb
+RUN python generate_ca_key.py
 RUN chmod 600 ca.key
 
 EXPOSE 3000
 
-CMD ["bundle", "exec", "rackup", "--host", "0.0.0.0", "-p", "3000"]
+ENV FLASK_APP=app.py
+
+CMD ["flask", "run", "--host", "0.0.0.0", "--port", "3000"]
