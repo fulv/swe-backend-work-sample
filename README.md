@@ -45,3 +45,12 @@ and email addresses.
 
 Your remote host will now run an nginx proxy with letsencrypt certificates,
 proxying all traffic to flask on port 3000.
+
+
+## Additional Security Measures
+I would also enable the server's firewall (can be done with ansible) to close all ports except for 80, 443 and 22.
+For ssh, we would even listen on a port other than 22 (e.g. 2222) for security-by-obscurity and close 22.
+I would make sure that the following items are configured in /etc/ssh/sshd_config:
+* PermitEmptyPasswords no
+* PasswordAuthentication no  (we only want to allow key-pair authentication on ssh).
+
