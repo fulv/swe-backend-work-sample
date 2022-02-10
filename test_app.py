@@ -13,6 +13,12 @@ PUBLIC_KEY = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDBhhgrB72tRuyulrOemCz6xuMa' 
              'aWy0sNQ02Zxy0E2I/Z5zFuB4GuIzpIwWIUMo9tE= test'
 
 
+HEADERS = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+
+
 @pytest.fixture
 def client():
     app.app.config['TESTING'] = True
@@ -22,18 +28,89 @@ def client():
 
 
 def test_post(client):
-    headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
 
     data = json.dumps({
       'username': 'test',
       'user_public_key': PUBLIC_KEY
     })
-    response = client.post('/', data=data, headers=headers)
+    response = client.post('/', data=data, headers=HEADERS)
 
     response_data = json.loads(response.data)
 
     assert 'key' in response_data
     assert response_data['key'].startswith('ssh-rsa-cert-v01@openssh.com')
+
+
+def test_no_username(client):
+    data = json.dumps({
+      'user_public_key': PUBLIC_KEY
+    })
+    with pytest.raises(Exception, match=r"Missing username"):
+        client.post('/', data=data, headers=HEADERS)
+
+
+def test_no_public_key(client):
+    data = json.dumps({
+      'username': 'test'
+    })
+    with pytest.raises(Exception, match=r"Missing public key"):
+        client.post('/', data=data, headers=HEADERS)
+
+
+def test_empty_username(client):
+    data = json.dumps({
+      'username': '',
+      'user_public_key': PUBLIC_KEY
+    })
+    with pytest.raises(Exception, match=r"Command returned value 1"):
+        client.post('/', data=data, headers=HEADERS)
+
+
+def test_empty_public_key(client):
+    data = json.dumps({
+      'username': 'test',
+      'user_public_key': ''
+    })
+    with pytest.raises(Exception, match=r"Command returned value 255"):
+        client.post('/', data=data, headers=HEADERS)
+
+
+def test_empty_certificate_id(client):
+    pass
+
+
+def test_ca_private_key(client):
+    pass
+
+
+# The following group of tests would attempt to probe each of the inputs
+# of the data json structure for shell injection holes.
+def test_shell_injection_username(client):
+    pass
+
+
+def test_shell_injection_public_key(client):
+    pass
+
+
+def test_shell_injection_certificate_id(client):
+    pass
+
+
+def test_shell_injection_validity_period(client):
+    pass
+
+
+def test_shell_injection_forced_command(client):
+    pass
+
+
+def test_shell_injection_deny_pty(client):
+    pass
+
+
+def test_shell_injection_deny_port_forwarding(client):
+    pass
+
+
+

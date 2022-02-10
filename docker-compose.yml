@@ -3,4 +3,49 @@ services:
   web:
     build: .
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
+    environment:
+        VIRTUAL_HOST: "TODO"
+        LETSENCRYPT_HOST: "TODO"
+        VIRTUAL_PORT: "3000"
+
+  letsencrypt:
+    image: nginxproxy/acme-companion
+    container_name: nginx-proxy-acme
+    environment:
+        DEFAULT_EMAIL: "TODO"
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - acme:/etc/acme.sh
+    restart: always
+    depends_on:
+      - nginx-proxy
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - vhost:/etc/nginx/vhost.d
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    restart: always
+    depends_on:
+      - web
+
+volumes:
+  vhost:
+  certs:
+  acme:
+  html:
+
+# References:
+# https://alexgallacher.com/how-to-setup-nginx-ssl-on-docker/
+# https://hub.docker.com/r/nginxproxy/acme-companion
+# https://github.com/nginx-proxy/nginx-proxy
+#

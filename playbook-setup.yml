@@ -1,0 +1,72 @@
+- hosts: "all"
+  gather_facts: True
+  become: yes
+
+  tasks:
+  - name: Install Packages
+    ansible.builtin.apt:
+      name:
+        - docker.io
+        - python3-pip
+      state: present
+      update_cache: yes
+
+  - name: Install Docker Python Packages
+    ansible.builtin.pip:
+      name:
+        - docker
+        - docker-compose
+      state: present
+
+  - name: Create user aptible
+    ansible.builtin.user:
+      name: aptible
+      comment: aptible
+      groups:
+        - docker
+      shell: '/bin/bash'
+      remove: yes
+      append: yes
+      state: present
+
+  - name: Set SSH Key for aptible
+    ansible.builtin.authorized_key:
+      user: aptible
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub' )}}"
+      state: present
+
+  - name: Create Project directory
+    ansible.builtin.file:
+      dest: /home/aptible/project/
+      state: directory
+      owner: aptible
+      group: aptible
+      mode: 0750
+
+  - name: Copy docker-compose
+    ansible.builtin.copy:
+      src: ./docker-compose.yml
+      dest: /home/aptible/project/docker-compose.yml
+      owner: aptible
+      group: aptible
+      mode: 0640
+
+  - name: Copy Dockerfile
+    ansible.builtin.copy:
+      src: ./Dockerfile
+      dest: /home/aptible/project/Dockerfile
+      owner: aptible
+      group: aptible
+      mode: 0640
+
+  - name: Copy python files
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: /home/aptible/project/
+    with_fileglob: "*.py"
+
+  - name: Copy requirements.txt file
+    ansible.builtin.copy:
+      src: ./requirements.txt
+      dest: /home/aptible/project/requirements.txt
+      mode: '0644'
