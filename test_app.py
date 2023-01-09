@@ -62,7 +62,7 @@ def test_empty_username(client):
       'username': '',
       'user_public_key': PUBLIC_KEY
     })
-    with pytest.raises(Exception, match=r"Command returned value 1"):
+    with pytest.raises(Exception, match=r"Command returned value 255"):
         client.post('/', data=data, headers=HEADERS)
 
 
@@ -86,7 +86,16 @@ def test_ca_private_key(client):
 # The following group of tests would attempt to probe each of the inputs
 # of the data json structure for shell injection holes.
 def test_shell_injection_username(client):
-    pass
+    data = json.dumps({
+      'username': 'test key.pub; echo "hello world"; cat ',
+      'user_public_key': PUBLIC_KEY
+    })
+    response = client.post('/', data=data, headers=HEADERS)
+
+    response_data = json.loads(response.data)
+
+    assert 'key' in response_data
+    assert response_data['key'].startswith('ssh-rsa-cert-v01@openssh.com')
 
 
 def test_shell_injection_public_key(client):

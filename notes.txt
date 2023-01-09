@@ -1,0 +1,35 @@
+1.
+
+There is a warning coming from three different lines in flask.json which seems safe to ignore:
+
+================================================================================================================ warnings summary =================================================================================================================
+../usr/local/lib/python3.7/site-packages/flask/json/__init__.py:31
+  /usr/local/lib/python3.7/site-packages/flask/json/__init__.py:31: DeprecationWarning: Importing 'itsdangerous.json' is deprecated and will be removed in ItsDangerous 2.1. Use Python's 'json' module instead.
+    _slash_escape = "\\/" not in _json.dumps("/")
+
+../usr/local/lib/python3.7/site-packages/flask/json/__init__.py:61
+  /usr/local/lib/python3.7/site-packages/flask/json/__init__.py:61: DeprecationWarning: Importing 'itsdangerous.json' is deprecated and will be removed in ItsDangerous 2.1. Use Python's 'json' module instead.
+    class JSONEncoder(_json.JSONEncoder):
+
+../usr/local/lib/python3.7/site-packages/flask/json/__init__.py:103
+  /usr/local/lib/python3.7/site-packages/flask/json/__init__.py:103: DeprecationWarning: Importing 'itsdangerous.json' is deprecated and will be removed in ItsDangerous 2.1. Use Python's 'json' module instead.
+    class JSONDecoder(_json.JSONDecoder):
+
+
+
+https://docs.python.org/3/library/subprocess.html#security-considerations
+
+Security Considerations
+Unlike some other popen functions, this implementation will never implicitly call a system shell. This means that all characters, including shell metacharacters, can safely be passed to child processes. If the shell is invoked explicitly, via shell=True, it is the application’s responsibility to ensure that all whitespace and metacharacters are quoted appropriately to avoid shell injection vulnerabilities. On some platforms, it is possible to use shlex.quote() for this escaping.
+
+
+
+https://en.wikipedia.org/wiki/Code_injection#Shell_injection
+
+
+
+Is there any way a hacker could monkeypatch the generator's ca_private_key?
+"   "   "   "   "   "   "   "   "   "   "   the generator itself?
+
+
+https://docs.python.org/3/howto/logging.html#configuring-logging-for-a-library

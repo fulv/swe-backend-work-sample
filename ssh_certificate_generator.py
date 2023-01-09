@@ -15,7 +15,7 @@ import logging
 import subprocess
 
 
-#logger = logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)#.addHandler(logging.NullHandler())
 # https://docs.python.org/3/howto/logging.html#configuring-logging-for-a-library
 
 
@@ -38,12 +38,15 @@ class SSHCertificateGenerator(object):
         certificate_id = quote(options.get('certificate_id', 'no-id'))
 
         keyfile_name = 'key.pub'
-        user_public_key = quote(options['user_public_key'])
+        # It should be ok to not use shlex.quote on user_public_key
+        # because the entire value is simply written to a file and never
+        # parsed.
+        user_public_key = options['user_public_key']
         with open(keyfile_name, 'w') as key:
             key.write(user_public_key)
 
         cmd = "ssh-keygen -s %s -I %s -n %s" % \
-              (self.ca_private_key, certificate_id, quote(options['username']))
+              (self.ca_private_key, certificate_id, options['username'])
 
         if 'validity_period' in options:
             cmd = cmd + ' -V %s' % quote(options['validity_period'])
@@ -59,7 +62,7 @@ class SSHCertificateGenerator(object):
         # Instead of outright printing cmd and ret, I would log them.
         # That way, users of this package have a chance of overriding
         # the desired log level.
-        #logger.info(cmd)
+        print(cmd)
 
         # The return value of subprocess.call was not checked.
         # See:
